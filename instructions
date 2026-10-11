@@ -1,0 +1,62 @@
+1.create a fast api project using fastapi doc.
+
+2. open the project using pycharm
+
+3 visit : https://platform.openai.com/home
+
+4.visit : https://developers.openai.com/api/docs
+
+5. click on get started
+
+6. uv add openai
+
+7. create new project and generate an api key
+   visit (https://platform.openai.com/settings/organization/projects)
+
+8. update .env file
+    OPENAI_API_KEY=open api key here
+    OPENAI_MODEL=gpt-5.5-pro
+
+9. update comfig.py
+   from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+    class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file="../.env")
+
+    openai_api_key: str
+    openai_model: str
+
+    settings = Settings()
+
+10. update ai.py
+    from openai import AsyncOpenAI
+from app.config import settings
+
+    client = AsyncOpenAI(api_key=settings.openai_api_key)
+
+    async def call_model(message: str) -> str:
+
+        response = await client.responses.create(
+            model=settings.openai_model,
+            input=message,
+        )
+        return response.output_text
+
+11. update main.py
+            from fastapi import FastAPI
+        from pydantic import BaseModel
+        from app.ai import call_model
+
+        app = FastAPI()
+
+        class ChatRequest(BaseModel):
+            message: str
+
+        class ChatResponse(BaseModel):
+            reply: str
+
+        @app.post("/chat", response_model=ChatResponse)
+        async def chat(request: ChatRequest):
+            reply = await call_model(request.message)
+            return ChatResponse(reply=reply)
