@@ -60,3 +60,10 @@ from app.config import settings
         async def chat(request: ChatRequest):
             reply = await call_model(request.message)
             return ChatResponse(reply=reply)
+			
+			
+********************************************************************
+visit weather forcasting web site :https://open-meteo.com/en/docs?latitude=6.9423&longitude=79.9842&past_days=5&hourly=&daily=temperature_2m_max,temperature_2m_min,wind_speed_10m_max,precipitation_sum&forecast_days=1 
+
+
+get the end point
