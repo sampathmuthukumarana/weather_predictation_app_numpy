@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from app.ai import call_model
-from app.datacreate import to_numpy
+from app.datacreate import to_numpy, summarize
 from app.weather import fetch_weather
 import logging
 
@@ -21,11 +21,21 @@ async def chat(request: ChatRequest):
     reply = await call_model(request.message)
     return ChatResponse(reply=reply)
 
-@app.get("/predict")
+@app.get("/predict", response_model=ChatResponse)
 async def predict(lat: float, lon: float):
     data  = await fetch_weather(lat, lon)
     dates,values = to_numpy(data)
-    logger.info(dates)
-    logger.info(values)
+    # logger.info(dates)
+    # logger.info(values)
+    summary =summarize(dates,values)
     # return {"dates":dates,"data":data}
     # return data
+    logger.info(summary)
+    prompt = (f"You are a weather assistant."
+              f"here is a weather report fr last 7 days:"
+              f"{summary}"
+              f"predict tomorrows weather and any chance of rain ad explain why briefly ")
+
+
+    reply = await call_model(prompt)
+    return ChatResponse(reply=reply)
