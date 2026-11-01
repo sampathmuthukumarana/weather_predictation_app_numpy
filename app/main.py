@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from app.ai import call_model
+from app.datacreate import to_numpy
 from app.weather import fetch_weather
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -19,5 +24,8 @@ async def chat(request: ChatRequest):
 @app.get("/predict")
 async def predict(lat: float, lon: float):
     data  = await fetch_weather(lat, lon)
-
-    return data
+    dates,values = to_numpy(data)
+    logger.info(dates)
+    logger.info(values)
+    # return {"dates":dates,"data":data}
+    # return data
